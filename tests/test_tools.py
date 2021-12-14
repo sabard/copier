@@ -9,12 +9,14 @@ from copier.tools import TemporaryDirectory
 
 def test_lint():
     """Ensure source code formatting"""
-    PoeThePoet(Path("."))(["lint", "--show-diff-on-failure", "--color=always"])
+    result = PoeThePoet(Path("."))(["lint", "--show-diff-on-failure", "--color=always"])
+    assert result == 0
 
 
 def test_types():
     """Ensure source code static typing."""
-    PoeThePoet(Path("."))(["types"])
+    result = PoeThePoet(Path("."))(["types"])
+    assert result == 0
 
 
 def test_temporary_directory_with_readonly_files_deletion():
