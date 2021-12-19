@@ -29,13 +29,10 @@ from .vcs import checkout_latest_tag, clone, get_repo
 try:
     from functools import cached_property
 except ImportError:
-    from backports.cached_property import cached_property
+    # HACK https://github.com/python/mypy/issues/1153#issuecomment-558556828
+    from backports.cached_property import cached_property  # type: ignore
 
-try:
-    from typing import Literal
-except ImportError:
-    from typing_extensions import Literal
-
+from .types import Literal
 
 # Default list of files in the template to exclude from the rendered project
 DEFAULT_EXCLUDE: Tuple[str, ...] = (

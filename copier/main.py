@@ -10,7 +10,7 @@ from functools import partial
 from itertools import chain
 from pathlib import Path
 from shutil import rmtree
-from typing import Callable, List, Mapping, Optional, Sequence
+from typing import Callable, Iterable, List, Mapping, Optional, Sequence
 from unicodedata import normalize
 
 import pathspec
@@ -41,7 +41,8 @@ from .user_data import DEFAULT_DATA, AnswersMap, Question
 try:
     from functools import cached_property
 except ImportError:
-    from backports.cached_property import cached_property
+    # HACK https://github.com/python/mypy/issues/1153#issuecomment-558556828
+    from backports.cached_property import cached_property  # type: ignore
 
 
 @dataclass
@@ -131,7 +132,7 @@ class Worker:
     """
 
     src_path: Optional[str] = None
-    dst_path: Path = field(default=".")
+    dst_path: Path = field(default=Path("."))
     answers_file: Optional[RelativePath] = None
     vcs_ref: OptStr = None
     data: AnyByStrDict = field(default_factory=dict)
@@ -210,7 +211,7 @@ class Worker:
             _folder_name=self.subproject.local_abspath.name,
         )
 
-    def _path_matcher(self, patterns: StrSeq) -> Callable[[Path], bool]:
+    def _path_matcher(self, patterns: Iterable[str]) -> Callable[[Path], bool]:
         """Produce a function that matches against specified patterns."""
         # TODO Is normalization really needed?
         normalized_patterns = (normalize("NFD", pattern) for pattern in patterns)
@@ -347,7 +348,7 @@ class Worker:
                     question.get_default()
                     if self.defaults
                     else unsafe_prompt(
-                        question.get_questionary_structure(), answers=result.combined
+                        [question.get_questionary_structure()], answers=result.combined
                     )[question.var_name]
                 )
             except KeyboardInterrupt as err:
